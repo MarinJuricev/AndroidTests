@@ -43,9 +43,11 @@ jobs:
           echo "List AVDs"
           echo emulator -list-avds
 
-      - name: Start emulator
+      - name: Start emulator and wait for emulator
         run: |
+#          emulator -avd S21 -memory 2048 -wipe-data -no-boot-anim -cache-size 1000 -noaudio -no-window -partition-size 8192 &
           $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -no-accel -wipe-data -no-boot-anim -dns-server 8.8.8.8 &
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
 
       - name: Wait for emulator to start
         run: |
