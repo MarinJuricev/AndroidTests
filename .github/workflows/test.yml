@@ -49,6 +49,11 @@ jobs:
         run: |
           $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -no-accel -wipe-data -no-boot-anim -dns-server 8.8.8.8 &
 
+      - name: Log info
+        run: |
+          echo "List AVDs"
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager list avd
+
       - name: Wait for emulator to start
         run: |
           export ANDROID_HOME=$ANDROID_SDK_ROOT
