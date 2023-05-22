@@ -63,23 +63,11 @@ jobs:
           echo "List AVDs"
           $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager list avd
 
-      - name: Clean project
-        run: ./gradlew clean
-
       - name: Build and run instrumented tests
         run: |
           while ! "$ANDROID_HOME/platform-tools/adb" shell getprop ro.build.version.sdk; do sleep 1; done
           
           echo "Test started"
           
-          adb uninstall com.example.myapplication.test
-          
-          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
-          
-          ./gradlew connectedDebugAndroidTest 
-
-          # Wait for 15 minutes or until the process finishes
-#          sleep 900
           ./gradlew connectedDebugAndroidTest --continue --no-daemon --quiet --console=plain
           # Terminate the process if it is still running after the timeout
-#          pkill -f "gradlew connectedCheck"
