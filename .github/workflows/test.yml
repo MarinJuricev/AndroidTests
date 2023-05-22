@@ -37,6 +37,9 @@ jobs:
       - name: Accept Android licenses
         run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
 
+      - name: Run gradle wrapper
+        run: gradle wrapper
+
       - name: Create Android emulator
         run: |
           echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-29;google_apis;x86_64"
