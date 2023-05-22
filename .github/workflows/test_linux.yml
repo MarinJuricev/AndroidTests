@@ -24,23 +24,20 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-#      - name: Install Android SDK
-#        run: |
-#          wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O android-sdk.zip
-#          unzip -q android-sdk.zip -d $HOME/android-sdk
-#          export ANDROID_SDK_ROOT=$HOME/android-sdk
-#          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
-#
-#      - name: Accept Android licenses
-#        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
-#
+      - name: Install Android SDK
+        run: |
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O android-sdk.zip
+          unzip -q android-sdk.zip -d $HOME/android-sdk
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+
+      - name: Accept Android licenses
+        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+
       - name: Create Android emulator
         run: |
           echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd --force --name test_emulator --package "system-images;android-30;google_apis;x86_64" --tag "google_apis" --abi "x86_64" --device "Nexus 5" --sdcard 2G
-#          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-30;google_apis;x86_64"
-#          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "emulator"
-#          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-30"
-#          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
+
       - name: List emulators
         run: |
           echo "List AVDs"
@@ -54,10 +51,10 @@ jobs:
         run: |
           export ANDROID_HOME=$ANDROID_SDK_ROOT
           export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
-#          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+          #adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
 
-#      - name: Clean and build project
-#        run: ./gradlew assembleDebug
+      - name: Clean and build project
+        run: ./gradlew assembleDebug
 
       - name: Build and run instrumented tests
         run: |
