@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: androidsdk/android-30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+#      - name: Install Android SDK
+#        run: |
+#          wget -q https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -O android-sdk.zip
+#          unzip -q android-sdk.zip -d $HOME/android-sdk
+#          export ANDROID_SDK_ROOT=$HOME/android-sdk
+#          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+#
+#      - name: Accept Android licenses
+#        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+#
+#      - name: Create Android emulator
+#        run: |
+#          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-30;google_apis;x86_64"
+#          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "emulator"
+#          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-30"
+#          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
+#          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd --force --name test_emulator --package "system-images;android-30;google_apis;x86_64" --tag "google_apis" --abi "x86_64" --device "Nexus 5" --sdcard 2G
+      - name: List emulators
+        run: |
+          echo "List AVDs"
+          echo emulator -list-avds
+
+      - name: Start emulator
+        run: |
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -no-accel -wipe-data -no-boot-anim -dns-server 8.8.8.8 &
+
+      - name: Wait for emulator to start
+        run: |
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+
+#      - name: Clean and build project
+#        run: ./gradlew assembleDebug
+
+      - name: Build and run instrumented tests
+        run: |
+          while ! "$ANDROID_HOME/platform-tools/adb" shell getprop ro.build.version.sdk; do sleep 1; done
+          
+          echo "Test started"
+          
+          ./gradlew connectedDebugAndroidTest --continue --no-daemon --quiet --console=plain --refresh-dependencies
+          # Terminate the process if it is still running after the timeout
