@@ -36,7 +36,7 @@ jobs:
 
       - name: Create Android emulator
         run: |
-          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd --force --name test_emulator --package "system-images;android-30;google_apis;x86_64" --tag "google_apis" --abi "x86_64" --device "Nexus 5" --sdcard 2G
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd --force --name test_emulator --package "system-images;android-21;google_apis;x86_64" --tag "google_apis" --abi "x86_64" --device "Nexus 5" --sdcard 2G
 
       - name: Start emulator and wait for emulator
         run: |
