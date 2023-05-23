@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up JDK
         uses: actions/setup-java@v2
@@ -64,7 +64,8 @@ jobs:
           
           echo "Test started"
           
-          ./gradlew connectedDebugAndroidTest --continue --no-daemon --quiet --console=plain --refresh-dependencies --stacktrace
+          ./gradlew connectedDebugAndroidTest --scan
+#          ./gradlew connectedDebugAndroidTest --continue --no-daemon --quiet --console=plain --refresh-dependencies --stacktrace
           # Terminate the process if it is still running after the timeout
 
       - uses: actions/upload-artifact@v3
