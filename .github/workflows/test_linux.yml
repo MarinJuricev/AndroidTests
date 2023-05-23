@@ -38,22 +38,18 @@ jobs:
         run: |
           echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd --force --name test_emulator --package "system-images;android-30;google_apis;x86_64" --tag "google_apis" --abi "x86_64" --device "Nexus 5" --sdcard 2G
 
+      - name: Start emulator and wait for emulator
+        run: |
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -no-accel -wipe-data -no-boot-anim -dns-server 8.8.8.8 &
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+      #          emulator -avd S21 -memory 2048 -wipe-data -no-boot-anim -cache-size 1000 -noaudio -no-window -partition-size 8192 &
+
       - name: List emulators
         run: |
           echo "List AVDs"
           echo emulator -list-avds
-
-      - name: Start emulator and wait for emulator
-        run: |
-          $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -no-accel -wipe-data -no-boot-anim -dns-server 8.8.8.8 &
-          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
-      #          emulator -avd S21 -memory 2048 -wipe-data -no-boot-anim -cache-size 1000 -noaudio -no-window -partition-size 8192 &
-
-      - name: Wait for emulator to start
-        run: |
-          export ANDROID_HOME=$ANDROID_SDK_ROOT
-          export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
-          #adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
 
       - name: Build project
         run: ./gradlew assembleDebug
