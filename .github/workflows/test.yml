@@ -27,10 +27,54 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
 
-      - name: run tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 29
-          emulator-options: -no-window
-          target: google_apis
-          script: ./gradlew connectedCheck
+      - name: Install Android SDK
+        run: |
+          wget -q https://dl.google.com/android/repository/commandlinetools-mac-7583922_latest.zip -O android-sdk.zip
+          unzip -q android-sdk.zip -d $HOME/android-sdk
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+
+      - name: Accept Android licenses
+        run: yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+
+      #      - name: Run gradle wrapper
+      #        run: gradle wrapper
+
+      - name: Create Android emulator
+        run: |
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-30;google_apis;x86_64"
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "emulator"
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-30"
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "platform-tools"
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd --force --name test_emulator --package "system-images;android-30;google_apis;x86_64" --tag "google_apis" --abi "x86_64" --device "Nexus 5" --sdcard 2G
+
+      - name: Start emulator and wait for emulator
+        run: |
+          $ANDROID_SDK_ROOT/emulator/emulator -avd test_emulator -no-audio -no-window -gpu swiftshader_indirect -no-snapshot -no-accel -wipe-data -no-boot-anim -dns-server 8.8.8.8 &
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+      #      #          emulator -avd S21 -memory 2048 -wipe-data -no-boot-anim -cache-size 1000 -noaudio -no-window -partition-size 8192 &
+
+      - name: Log info
+        run: |
+          echo "List AVDs"
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager list avd
+
+      - name: Wait for emulator to start
+        run: |
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
+      #          adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
+
+      - name: Clean and build project
+        run: ./gradlew assembleDebug
+
+      - name: Build and run instrumented tests
+        run: |
+          while ! "$ANDROID_HOME/platform-tools/adb" shell getprop ro.build.version.sdk; do sleep 1; done
+
+          echo "Test started"
+          adb devices
+          ./gradlew connectedDebugAndroidTest --continue --no-daemon --quiet --console=plain --refresh-dependencies --scan
+          # Terminate the process if it is still running after the timeout
