@@ -55,7 +55,7 @@ jobs:
           export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools
           #adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
 
-      - name: Clean and build project
+      - name: Build project
         run: ./gradlew assembleDebug
 
       - name: Build and run instrumented tests
@@ -64,5 +64,10 @@ jobs:
           
           echo "Test started"
           
-          ./gradlew connectedDebugAndroidTest --continue --no-daemon --quiet --console=plain --refresh-dependencies
+          ./gradlew connectedDebugAndroidTest --continue --no-daemon --quiet --console=plain --refresh-dependencies --stacktrace
           # Terminate the process if it is still running after the timeout
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: file:///__w/AndroidTests/AndroidTests/app/build/reports/androidTests/connected/debug/index.html
