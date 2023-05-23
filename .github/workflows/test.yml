@@ -76,5 +76,5 @@ jobs:
 
           echo "Test started"
 
-          ./gradlew connectedDebugAndroidTest --continue --no-daemon --quiet --console=plain --refresh-dependencies
+          ./gradlew connectedDebugAndroidTest --continue --no-daemon --quiet --console=plain --refresh-dependencies --scan
           # Terminate the process if it is still running after the timeout
