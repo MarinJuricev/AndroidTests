@@ -5,7 +5,7 @@
 # With this approach we can run the flow on our runner, without this workaround we would have to use the Github runners.
 name: KMM Bridge Github Workflow from same Branch
 on:
-  workflow_call:
+  workflow_dispatch:
 
     inputs:
       module:

@@ -7,7 +7,7 @@
 # Generally prefer this workflow over kmm-publish.yml, if you use SPM, more info can be found here https://kmmbridge.touchlab.co/docs/ciconfig/GITHUB_ACTIONS
 name: KMM Bridge Github Workflow
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       module:
         description: The module name to run the task on if you have mutliple kmp modules
