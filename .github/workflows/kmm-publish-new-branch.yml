@@ -8,10 +8,6 @@
 name: KMM Bridge Github Workflow
 on:
   workflow_call:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
     inputs:
       module:
         description: The module name to run the task on if you have mutliple kmp modules
